@@ -49,7 +49,7 @@ export class AgentsSDKRunner {
         return agentsTool({
           name: openAITool.function.name,
           description: openAITool.function.description,
-          parameters: toolDef.inputSchema,
+          parameters: toolDef.inputSchema as z.ZodObject<any>,
           execute: async (args: any) => {
             const toolContext: ToolContext = {
               sessionId: context.sessionId,
@@ -104,10 +104,10 @@ export class AgentsSDKRunner {
 
       return {
         workflowId,
-        runId: result.runId || `run_${Date.now()}`,
+        runId: (result as any).runId || `run_${Date.now()}`,
         status: 'completed',
         output,
-        traceRef: result.traceId,
+        traceRef: (result as any).traceId,
         timings: {
           startedAt,
           completedAt,

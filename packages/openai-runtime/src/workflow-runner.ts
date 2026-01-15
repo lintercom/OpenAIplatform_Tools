@@ -70,7 +70,8 @@ export class WorkflowRunner {
 
       for (const toolCall of toolCalls) {
         if (toolCall.type === 'function') {
-          const toolId = toolCall.function.name;
+          // Convert OpenAI function name back to tool ID (underscore -> dot)
+          const toolId = this.registry.openAINameToToolId(toolCall.function.name);
           const args = JSON.parse(toolCall.function.arguments || '{}');
 
           const toolContext: ToolContext = {
