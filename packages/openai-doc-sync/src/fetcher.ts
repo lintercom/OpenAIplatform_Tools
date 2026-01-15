@@ -33,11 +33,23 @@ export async function fetchDocPage(url: string): Promise<DocPage> {
     const title = $('title').text() || $('h1').first().text() || 'Untitled';
 
     // Extrakce hlavního obsahu
-    const mainContent = $('main, article, .content, #content').first();
+    // Pro openai.github.io použijeme specifické selektory
+    let mainContent = $('main, article, .content, #content').first();
+    
+    // Pro OpenAI Agents SDK dokumentaci (openai.github.io)
+    if (url.includes('openai.github.io')) {
+      mainContent = $('main, [role="main"], .main-content, article').first();
+      if (mainContent.length === 0) {
+        // Fallback na body bez navigace
+        mainContent = $('body');
+        mainContent.find('script, style, nav, header, footer, aside, .sidebar').remove();
+      }
+    }
+    
     if (mainContent.length === 0) {
       // Fallback na body
       const body = $('body');
-      body.find('script, style, nav, header, footer').remove();
+      body.find('script, style, nav, header, footer, aside, .sidebar').remove();
       return {
         url,
         title,
@@ -109,6 +121,7 @@ export async function fetchDocPage(url: string): Promise<DocPage> {
  * Seznam URL OpenAI dokumentace k synchronizaci
  */
 export const OPENAI_DOC_URLS = [
+  // Platform documentation
   'https://platform.openai.com/docs/guides/agents',
   'https://platform.openai.com/docs/guides/agent-builder',
   'https://platform.openai.com/docs/guides/tools',
@@ -116,4 +129,23 @@ export const OPENAI_DOC_URLS = [
   'https://platform.openai.com/docs/guides/structured-outputs',
   'https://platform.openai.com/docs/api-reference/responses',
   'https://platform.openai.com/docs/api-reference/authentication',
+  // OpenAI Agents SDK documentation
+  'https://openai.github.io/openai-agents-js/',
+  'https://openai.github.io/openai-agents-js/quickstart',
+  'https://openai.github.io/openai-agents-js/guides/agents',
+  'https://openai.github.io/openai-agents-js/guides/running-agents',
+  'https://openai.github.io/openai-agents-js/guides/results',
+  'https://openai.github.io/openai-agents-js/guides/tools',
+  'https://openai.github.io/openai-agents-js/guides/orchestrating-multiple-agents',
+  'https://openai.github.io/openai-agents-js/guides/handoffs',
+  'https://openai.github.io/openai-agents-js/guides/context-management',
+  'https://openai.github.io/openai-agents-js/guides/sessions',
+  'https://openai.github.io/openai-agents-js/guides/models',
+  'https://openai.github.io/openai-agents-js/guides/guardrails',
+  'https://openai.github.io/openai-agents-js/guides/streaming',
+  'https://openai.github.io/openai-agents-js/guides/human-in-the-loop',
+  'https://openai.github.io/openai-agents-js/guides/model-context-protocol-mcp',
+  'https://openai.github.io/openai-agents-js/guides/tracing',
+  'https://openai.github.io/openai-agents-js/guides/configuring-the-sdk',
+  'https://openai.github.io/openai-agents-js/guides/troubleshooting',
 ];
