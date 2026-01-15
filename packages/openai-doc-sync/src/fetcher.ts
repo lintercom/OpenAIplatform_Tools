@@ -121,6 +121,8 @@ export async function fetchDocPage(url: string): Promise<DocPage> {
  * Seznam URL OpenAI dokumentace k synchronizaci
  */
 export const OPENAI_DOC_URLS = [
+  // Platform documentation - Overview
+  'https://platform.openai.com/docs/overview',
   // Platform documentation - Guides
   'https://platform.openai.com/docs/guides/agents',
   'https://platform.openai.com/docs/guides/agent-builder',

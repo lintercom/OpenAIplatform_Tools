@@ -99,7 +99,8 @@ pnpm docs:prompt-pack "build new tool with handoffs"
 ```
 
 Synchronizované dokumentace:
-- OpenAI Platform guides (Agents, Tools, Function Calling, etc.)
+- OpenAI Platform overview a guides (Overview, Agents, Tools, Function Calling, etc.)
+- OpenAI Platform API Reference (Chat, Completions, Embeddings, Images, Audio, Assistants, etc.)
 - OpenAI Agents SDK (https://openai.github.io/openai-agents-js/)
   - Agents, Handoffs, Guardrails, Multi-agent orchestration
   - Sessions, Context management, Tracing

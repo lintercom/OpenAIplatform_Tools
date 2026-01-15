@@ -31,6 +31,9 @@ const prompt = await sync.generatePromptPack('build new tool');
 
 ## Synchronizované URL
 
+### Platform Documentation - Overview
+- Platform overview
+
 ### Platform Documentation - Guides
 - Agents guide
 - Agent Builder guide
