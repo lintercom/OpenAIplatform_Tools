@@ -27,4 +27,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Seed data pro katalog a templates
 - Testy pro registry a tools
 
-[1.0.0]: https://github.com/YOUR_USERNAME/ai-toolkit-openai-platform/releases/tag/v1.0.0
+[1.0.0]: https://github.com/lintercom/OpenAIplatform_Tools/releases/tag/v1.0.0

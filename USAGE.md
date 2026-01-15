@@ -17,9 +17,9 @@ V `package.json` vašeho projektu:
 ```json
 {
   "dependencies": {
-    "@ai-toolkit/core": "github:YOUR_USERNAME/ai-toolkit-openai-platform#main:packages/toolkit-core",
-    "@ai-toolkit/tools": "github:YOUR_USERNAME/ai-toolkit-openai-platform#main:packages/toolkit-tools",
-    "@ai-toolkit/openai-runtime": "github:YOUR_USERNAME/ai-toolkit-openai-platform#main:packages/openai-runtime",
+    "@ai-toolkit/core": "github:lintercom/OpenAIplatform_Tools#main:packages/toolkit-core",
+    "@ai-toolkit/tools": "github:lintercom/OpenAIplatform_Tools#main:packages/toolkit-tools",
+    "@ai-toolkit/openai-runtime": "github:lintercom/OpenAIplatform_Tools#main:packages/openai-runtime",
     "@ai-toolkit/workflow-kit": "github:YOUR_USERNAME/ai-toolkit-openai-platform#main:packages/workflow-kit",
     "@ai-toolkit/adapters": "github:YOUR_USERNAME/ai-toolkit-openai-platform#main:packages/adapters"
   }
@@ -38,7 +38,7 @@ V `package.json` vašeho projektu:
 ```json
 {
   "dependencies": {
-    "@ai-toolkit/core": "file:../ai-toolkit-openai-platform/packages/toolkit-core",
+    "@ai-toolkit/core": "file:../OpenAIplatform_Tools/packages/toolkit-core",
     "@ai-toolkit/tools": "file:../ai-toolkit-openai-platform/packages/toolkit-tools"
   }
 }

@@ -100,7 +100,7 @@ V `package.json` vašeho projektu:
 ```json
 {
   "dependencies": {
-    "@ai-toolkit/core": "github:VASE_USERNAME/ai-toolkit-openai-platform#main:packages/toolkit-core",
+    "@ai-toolkit/core": "github:lintercom/OpenAIplatform_Tools#main:packages/toolkit-core",
     "@ai-toolkit/tools": "github:VASE_USERNAME/ai-toolkit-openai-platform#main:packages/toolkit-tools",
     "@ai-toolkit/openai-runtime": "github:VASE_USERNAME/ai-toolkit-openai-platform#main:packages/openai-runtime",
     "@ai-toolkit/workflow-kit": "github:VASE_USERNAME/ai-toolkit-openai-platform#main:packages/workflow-kit",
