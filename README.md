@@ -1,6 +1,10 @@
 # AI Toolkit for OpenAI Platform
 
-Produkční monorepo pro vytváření opakovatelné "AI Tools Library" na OpenAI Agent Platform. Tento toolkit poskytuje Tool Registry, OpenAI runtime integraci, workflow templates, dokumentační sync pipeline a sadu built-in tools.
+Produkční monorepo pro vytváření opakovatelné "AI Tools Library" na OpenAI Agent Platform. 
+
+**AI Toolkit je meta-framework a platforma** pro správu, governance a znovupoužití AI tools napříč projekty. Poskytuje Tool Registry, Policy Engine, Audit Logging, Workflow Templates a integraci s [OpenAI Agents SDK](https://github.com/openai/openai-agents-js).
+
+> **Rozdíl od OpenAI Agents SDK:** OpenAI Agents SDK je framework pro vytváření agentů (execution layer). AI Toolkit je platforma pro správu tools a workflows (governance & management layer). Oba se doplňují - viz [COMPARISON.md](COMPARISON.md).
 
 ## Struktura projektu
 
@@ -151,9 +155,18 @@ Viz [SETUP_GITHUB.md](SETUP_GITHUB.md) a [DEPLOYMENT.md](DEPLOYMENT.md) pro deta
 
 - [Quick Start Guide](QUICKSTART.md)
 - [Architecture](ARCHITECTURE.md)
+- [AI Toolkit vs OpenAI Agents SDK](COMPARISON.md) - **Přečtěte si, jak se lišíme!**
 - [Deployment Guide](DEPLOYMENT.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Tool Registry Guide](packages/toolkit-core/README.md)
 - [Workflow Templates](packages/workflow-kit/README.md)
 - [OpenAI Runtime](packages/openai-runtime/README.md)
 - [API Reference](apps/api/README.md)
+
+## Vztah k OpenAI Agents SDK
+
+AI Toolkit **používá a rozšiřuje** [OpenAI Agents SDK](https://github.com/openai/openai-agents-js):
+- OpenAI Agents SDK = execution framework (jak spustit agenty)
+- AI Toolkit = management platform (jak spravovat tools, policies, audit)
+
+Viz [COMPARISON.md](COMPARISON.md) pro detailní srovnání.
