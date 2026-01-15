@@ -37,17 +37,45 @@ for await (const chunk of runner.runWorkflowStream(...)) {
 
 Všechny workflow runs jsou automaticky uloženy do databáze s trace reference.
 
-## OpenAI Agents SDK
+## OpenAI Agents SDK Integration
 
-Tento runtime používá OpenAI Responses API. Pro pokročilejší funkcionalitu (handoffs, guardrails, multi-agent orchestration) zvažte použití [OpenAI Agents SDK](https://openai.github.io/openai-agents-js/) přímo.
+Tento runtime podporuje jak OpenAI Responses API, tak i plný [OpenAI Agents SDK](https://openai.github.io/openai-agents-js/) pro pokročilejší funkcionalitu.
 
-### Migrace na Agents SDK
-
-Pro migraci na plný Agents SDK:
+### Použití Agents SDK Runner
 
 ```typescript
-import { Agent, run } from '@openai/agents';
-import { tool } from '@openai/agents';
+import { AgentsSDKRunner } from '@ai-toolkit/openai-runtime';
+
+const agentsRunner = new AgentsSDKRunner(
+  {
+    openaiApiKey: process.env.OPENAI_API_KEY!,
+    model: 'gpt-4-turbo-preview',
+  },
+  registry
+);
+
+const result = await agentsRunner.runWorkflowWithAgentsSDK(
+  'router',
+  { sessionId: '...', leadId: '...' },
+  'Uživatelská zpráva',
+  workflow.systemPrompt
+);
+```
+
+### Výhody Agents SDK
+
+- **Handoffs**: Delegace mezi agenty
+- **Guardrails**: Input/output validace
+- **Multi-agent orchestration**: Koordinace více agentů
+- **Tracing**: Pokročilé tracing a debugging
+- **Sessions**: Správa kontextu a session
+
+### Přímé použití Agents SDK
+
+Pro přímé použití bez wrapperu:
+
+```typescript
+import { Agent, run, tool } from '@openai/agents';
 
 const agent = new Agent({
   name: 'Assistant',

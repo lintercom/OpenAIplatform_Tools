@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@ai-toolkit/core": "workspace:*",
+    "@openai/agents": "^1.0.0",
     "@prisma/client": "^5.9.0",
     "openai": "^4.20.0",
     "zod": "^3.22.4"
