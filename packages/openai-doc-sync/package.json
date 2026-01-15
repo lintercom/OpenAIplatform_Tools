@@ -1,0 +1,41 @@
+{
+  "name": "@ai-toolkit/openai-doc-sync",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "bin": {
+    "docs-sync": "./dist/cli.js",
+    "docs-search": "./dist/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lintercom/ai-toolkit-openai-platform.git",
+    "directory": "packages/openai-doc-sync"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "sync": "node dist/cli.js sync",
+    "search": "node dist/cli.js search"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.9.0",
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/node-fetch": "^2.6.11",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "@ai-toolkit/platform",
+  "version": "1.0.0",
+  "description": "Reusable AI Tools Library for OpenAI Agent Platform",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lintercom/ai-toolkit-openai-platform.git"
+  },
+  "keywords": [
+    "openai",
+    "ai",
+    "tools",
+    "agents",
+    "workflow",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "prisma:generate": "pnpm --filter toolkit-core prisma generate",
+    "prisma:migrate": "pnpm --filter toolkit-core prisma migrate dev",
+    "prisma:studio": "pnpm --filter toolkit-core prisma studio",
+    "docs:sync": "pnpm --filter openai-doc-sync sync",
+    "docs:search": "pnpm --filter openai-doc-sync search",
+    "setup:github": "node scripts/setup-github.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

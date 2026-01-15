@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tool Registry
+model Tool {
+  id          String   @id
+  category    String
+  description String
+  inputSchema Json     // Zod schema serialized
+  outputSchema Json    // Zod schema serialized
+  policy      Json?    // Policy configuration
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  toolCalls ToolCall[]
+}
+
+// Audit log for tool invocations
+model ToolCall {
+  id          String   @id @default(uuid())
+  toolId      String
+  sessionId   String?
+  leadId      String?
+  input       Json     // Redacted per policy
+  output      Json?    // Redacted per policy
+  status      String   // "success" | "error" | "blocked"
+  error       String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  tool Tool @relation(fields: [toolId], references: [id])
+
+  @@index([toolId])
+  @@index([sessionId])
+  @@index([leadId])
+  @@index([createdAt])
+}
+
+// Workflow runs and traces
+model WorkflowRun {
+  id          String   @id @default(uuid())
+  workflowId  String
+  sessionId   String?
+  leadId      String?
+  traceRef    String?  // OpenAI trace reference
+  status      String   // "running" | "completed" | "failed"
+  input       Json?
+  output      Json?
+  error       String?
+  timings     Json?    // { startedAt, completedAt, duration }
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([sessionId])
+  @@index([traceRef])
+  @@index([createdAt])
+}
+
+// OpenAI documentation cache
+model OpenAIDoc {
+  id          String   @id @default(uuid())
+  url         String
+  title       String
+  section     String?  // Section identifier within page
+  text        String   @db.Text
+  metadata    Json?    // { publishedAt, updatedAt, tags, etc. }
+  fetchedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([url, section])
+  @@index([url])
+  @@index([title])
+  @@fulltext([title, text])
+}
+
+// Sessions
+model Session {
+  id          String   @id @default(uuid())
+  leadId      String?
+  consent     Json?    // Consent flags
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([leadId])
+}
+
+// Leads
+model Lead {
+  id          String   @id @default(uuid())
+  email       String?  @unique
+  phone       String?
+  name        String?
+  stage       String   @default("new")
+  score       Int      @default(0)
+  tags        String[]
+  data        Json?    // Additional lead data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([email])
+  @@index([stage])
+  @@index([score])
+}
+
+// Events
+model Event {
+  id          String   @id @default(uuid())
+  sessionId   String?
+  leadId      String?
+  type        String
+  payload     Json?
+  createdAt   DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([leadId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// Catalog (services, FAQs)
+model CatalogService {
+  id          String   @id @default(uuid())
+  name        String
+  description String?  @db.Text
+  category    String?
+  price       Float?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+}
+
+model CatalogFAQ {
+  id          String   @id @default(uuid())
+  question    String
+  answer      String   @db.Text
+  category    String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+}
+
+// Templates
+model Template {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // "email" | "message" | "ui"
+  content     String   @db.Text
+  variables   Json?    // Variable definitions
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type])
+}
