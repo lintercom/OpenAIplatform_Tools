@@ -121,14 +121,31 @@ export async function fetchDocPage(url: string): Promise<DocPage> {
  * Seznam URL OpenAI dokumentace k synchronizaci
  */
 export const OPENAI_DOC_URLS = [
-  // Platform documentation
+  // Platform documentation - Guides
   'https://platform.openai.com/docs/guides/agents',
   'https://platform.openai.com/docs/guides/agent-builder',
   'https://platform.openai.com/docs/guides/tools',
   'https://platform.openai.com/docs/guides/function-calling',
   'https://platform.openai.com/docs/guides/structured-outputs',
-  'https://platform.openai.com/docs/api-reference/responses',
+  // Platform documentation - API Reference
+  'https://platform.openai.com/docs/api-reference/introduction',
   'https://platform.openai.com/docs/api-reference/authentication',
+  'https://platform.openai.com/docs/api-reference/chat',
+  'https://platform.openai.com/docs/api-reference/completions',
+  'https://platform.openai.com/docs/api-reference/embeddings',
+  'https://platform.openai.com/docs/api-reference/images',
+  'https://platform.openai.com/docs/api-reference/audio',
+  'https://platform.openai.com/docs/api-reference/batch',
+  'https://platform.openai.com/docs/api-reference/files',
+  'https://platform.openai.com/docs/api-reference/fine-tuning',
+  'https://platform.openai.com/docs/api-reference/models',
+  'https://platform.openai.com/docs/api-reference/moderations',
+  'https://platform.openai.com/docs/api-reference/assistants',
+  'https://platform.openai.com/docs/api-reference/threads',
+  'https://platform.openai.com/docs/api-reference/messages',
+  'https://platform.openai.com/docs/api-reference/runs',
+  'https://platform.openai.com/docs/api-reference/vector-stores',
+  'https://platform.openai.com/docs/api-reference/responses',
   // OpenAI Agents SDK documentation
   'https://openai.github.io/openai-agents-js/',
   'https://openai.github.io/openai-agents-js/quickstart',

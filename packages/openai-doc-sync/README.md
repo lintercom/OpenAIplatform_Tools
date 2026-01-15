@@ -31,14 +31,32 @@ const prompt = await sync.generatePromptPack('build new tool');
 
 ## Synchronizované URL
 
-### Platform Documentation
+### Platform Documentation - Guides
 - Agents guide
 - Agent Builder guide
 - Tools guide
 - Function calling guide
 - Structured outputs guide
-- Responses API reference
-- Authentication reference
+
+### Platform Documentation - API Reference
+- Introduction
+- Authentication
+- Chat completions
+- Text completions
+- Embeddings
+- Images
+- Audio (Speech-to-text, Text-to-speech)
+- Batch processing
+- Files
+- Fine-tuning
+- Models
+- Moderations
+- Assistants API
+- Threads
+- Messages
+- Runs
+- Vector stores
+- Responses API
 
 ### OpenAI Agents SDK Documentation
 - Overview a Quickstart

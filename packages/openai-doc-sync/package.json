@@ -25,7 +25,11 @@
     "test": "vitest",
     "lint": "eslint src --ext .ts",
     "sync": "node dist/cli.js sync",
-    "search": "node dist/cli.js search"
+    "search": "node dist/cli.js search",
+    "api-endpoints": "node dist/cli.js api-endpoints",
+    "api-docs": "node dist/cli.js api-docs",
+    "api-examples": "node dist/cli.js api-examples",
+    "api-tool-prompt": "node dist/cli.js api-tool-prompt"
   },
   "dependencies": {
     "@prisma/client": "^5.9.0",

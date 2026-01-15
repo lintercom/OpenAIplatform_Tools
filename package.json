@@ -27,6 +27,10 @@
     "prisma:studio": "pnpm --filter toolkit-core prisma studio",
     "docs:sync": "pnpm --filter openai-doc-sync sync",
     "docs:search": "pnpm --filter openai-doc-sync search",
+    "docs:api-endpoints": "pnpm --filter openai-doc-sync api-endpoints",
+    "docs:api-docs": "pnpm --filter openai-doc-sync api-docs",
+    "docs:api-examples": "pnpm --filter openai-doc-sync api-examples",
+    "docs:api-tool-prompt": "pnpm --filter openai-doc-sync api-tool-prompt",
     "setup:github": "node scripts/setup-github.js"
   },
   "devDependencies": {
