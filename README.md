@@ -79,10 +79,27 @@ Viz `packages/workflow-kit/README.md` pro detaily.
 
 ## Synchronizace OpenAI dokumentace
 
+Toolkit má přístup k kompletní OpenAI dokumentaci včetně OpenAI Agents SDK:
+
 ```bash
+# Synchronizace všech docs (včetně OpenAI Agents SDK)
 pnpm docs:sync
-pnpm docs:search "query"
+
+# Vyhledání v dokumentaci
+pnpm docs:search "agents"
+pnpm docs:search "handoffs"
+pnpm docs:search "guardrails"
+
+# Generování prompt packu pro konkrétní task
+pnpm docs:prompt-pack "build new tool with handoffs"
 ```
+
+Synchronizované dokumentace:
+- OpenAI Platform guides (Agents, Tools, Function Calling, etc.)
+- OpenAI Agents SDK (https://openai.github.io/openai-agents-js/)
+  - Agents, Handoffs, Guardrails, Multi-agent orchestration
+  - Sessions, Context management, Tracing
+  - Tools, Streaming, Human-in-the-loop
 
 ## Testování
 
