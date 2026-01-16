@@ -14,6 +14,13 @@ import { createMessageTools } from './tools/message';
 import { createCRMTools } from './tools/crm';
 import { createPricingTools } from './tools/pricing';
 import { createVerifyTools } from './tools/verify';
+import { createCartTools } from './tools/cart';
+import { createOrderTools } from './tools/order';
+import { createProductTools } from './tools/product';
+import { createCheckoutTools } from './tools/checkout';
+import { createIntentTools } from './tools/intent';
+import { createQuoteTools } from './tools/quote';
+import { createServiceTools } from './tools/service';
 
 /**
  * Registruje všechny built-in tools do registry
@@ -34,6 +41,15 @@ export function registerAllTools(registry: ToolRegistry, prisma: PrismaClient): 
   createCRMTools(prisma, crmAdapter).forEach((tool) => registry.register(tool));
   createPricingTools().forEach((tool) => registry.register(tool));
   createVerifyTools(storageAdapter).forEach((tool) => registry.register(tool));
+  
+  // E-commerce tools
+  createCartTools(prisma).forEach((tool) => registry.register(tool));
+  createOrderTools(prisma).forEach((tool) => registry.register(tool));
+  createProductTools(prisma).forEach((tool) => registry.register(tool));
+  createCheckoutTools(prisma).forEach((tool) => registry.register(tool));
+  createIntentTools(prisma).forEach((tool) => registry.register(tool));
+  createQuoteTools(prisma).forEach((tool) => registry.register(tool));
+  createServiceTools(prisma).forEach((tool) => registry.register(tool));
 }
 
 export * from './tools/session';
@@ -45,3 +61,10 @@ export * from './tools/message';
 export * from './tools/crm';
 export * from './tools/pricing';
 export * from './tools/verify';
+export * from './tools/cart';
+export * from './tools/order';
+export * from './tools/product';
+export * from './tools/checkout';
+export * from './tools/intent';
+export * from './tools/quote';
+export * from './tools/service';

@@ -232,3 +232,144 @@ model TenantAPIKey {
   @@index([keyHash])
   @@index([active])
 }
+
+// E-commerce: Products
+model Product {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  name        String
+  description String?  @db.Text
+  category    String?
+  price       Float
+  stock       Int      @default(0)
+  metadata    Json?    // Compatibility, specifications, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+
+  @@index([sku])
+  @@index([category])
+}
+
+// E-commerce: Shopping Cart
+model Cart {
+  id          String   @id @default(uuid())
+  sessionId   String?  @unique
+  leadId      String?
+  tenantId    String?
+  items       CartItem[]
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sessionId])
+  @@index([leadId])
+}
+
+// E-commerce: Cart Items
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  price     Float    // Snapshot ceny při přidání
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+// E-commerce: Orders
+model Order {
+  id              String      @id @default(uuid())
+  orderNumber     String      @unique
+  leadId          String?
+  tenantId        String?
+  status          String      @default("pending") // pending, confirmed, paid, shipped, delivered, cancelled
+  totalAmount     Float
+  shippingMethod  String?
+  shippingCost    Float       @default(0)
+  paymentMethod   String?
+  paymentStatus   String      @default("pending") // pending, paid, failed, refunded
+  shippingAddress Json?
+  billingAddress  Json?
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  items           OrderItem[]
+
+  @@index([leadId])
+  @@index([orderNumber])
+  @@index([status])
+}
+
+// E-commerce: Order Items
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float    // Snapshot ceny při objednání
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// E-commerce: Quote Requests
+model QuoteRequest {
+  id          String   @id @default(uuid())
+  leadId      String?
+  sessionId   String?
+  status      String   @default("draft") // draft, submitted, quoted, accepted, rejected
+  data        Json     // Strukturovaná data poptávky
+  attachments Json?    // Reference na fotky/dokumenty
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([leadId])
+  @@index([status])
+}
+
+// E-commerce: Quotes
+model Quote {
+  id            String   @id @default(uuid())
+  quoteRequestId String  @unique
+  leadId        String?
+  status        String   @default("draft") // draft, sent, accepted, rejected
+  totalAmount   Float?
+  items         Json     // Položky nabídky
+  validUntil    DateTime?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([leadId])
+  @@index([status])
+}
+
+// E-commerce: Service Tickets
+model ServiceTicket {
+  id          String   @id @default(uuid())
+  leadId      String?
+  sessionId   String?
+  status      String   @default("open") // open, in_progress, waiting_parts, resolved, closed
+  urgency     String   @default("normal") // low, normal, high, critical
+  description String   @db.Text
+  requiredParts Json?  // Detekované potřebné díly
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([leadId])
+  @@index([status])
+  @@index([urgency])
+}
