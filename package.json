@@ -38,7 +38,10 @@
     "create-tool": "tsx scripts/create-tool.ts",
     "setup-tenant-api-key": "tsx scripts/setup-tenant-api-key.ts",
     "pre-publish": "tsx scripts/pre-publish-check.ts",
-    "setup:github": "node scripts/setup-github.js"
+    "setup:github": "node scripts/setup-github.js",
+    "architect:api": "pnpm --filter architect-api dev",
+    "architect:ui": "pnpm --filter architect-ui dev",
+    "architect:start": "powershell -ExecutionPolicy Bypass -File scripts/start-architect.ps1"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
