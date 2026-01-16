@@ -1,0 +1,38 @@
+{
+  "name": "@ai-toolkit/architect-core",
+  "version": "1.0.0",
+  "description": "Core logic for Architect - system architecture planning tool",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lintercom/OpenAIplatform_Tools.git",
+    "directory": "packages/architect-core"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@ai-toolkit/core": "workspace:*",
+    "@ai-toolkit/cost-control": "workspace:*",
+    "@ai-toolkit/openai-runtime": "workspace:*",
+    "@ai-toolkit/tool-contract": "workspace:*",
+    "@prisma/client": "^5.9.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
