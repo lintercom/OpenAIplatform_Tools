@@ -28,6 +28,16 @@ Platforma je navržena jako monorepo s jasně oddělenými zodpovědnostmi:
 │ (toolkit-    │ │ (workflow-   │ │ (observability│
 │  tools)      │ │  kit)        │ │  )            │
 └──────────────┘ └──────────────┘ └──────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│         Cost Control Layer (cost-control)                   │
+│  - Token Budget Policy                                       │
+│  - LLM Role Router                                           │
+│  - Context Cache                                             │
+│  - Fallback Response                                         │
+│  - Cost Monitoring                                           │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Balíčky
@@ -96,6 +106,36 @@ const result = await registry.invokeTool('my.tool', context, input);
 - Každý tool je v samostatném souboru
 - Exportuje funkci `create*Tools()` která vrací `ToolContract[]`
 - Automatická registrace v `index.ts`
+
+### @ai-toolkit/cost-control
+**Zodpovědnost:** Cost & Control vrstva pro LLM orchestration
+
+**Klíčové komponenty:**
+- `TokenBudgetPolicy` - Kontrola token budgetu
+- `LLMRoleRouter` - Role-based model routing
+- `ContextCache` - Cache pro opakované dotazy
+- `FallbackResponseTool` - Garantovaná odpověď
+- `CostMonitoring` - Sledování nákladů
+
+**Použití:**
+```typescript
+import { LLMRoleRouter, TokenBudgetPolicy, ContextCache, FallbackResponseTool } from '@ai-toolkit/cost-control';
+
+const router = new LLMRoleRouter({
+  openaiClient,
+  tokenBudgetPolicy,
+  contextCache,
+  fallbackResponseTool,
+});
+
+const response = await router.callLLM({
+  role: 'intent_detection',
+  messages: [...],
+  context: {...},
+});
+```
+
+**Více:** [COST_ARCHITECTURE_REPORT.md](./docs/COST_ARCHITECTURE_REPORT.md)
 
 ### @ai-toolkit/workflow-kit
 **Zodpovědnost:** Reusable workflow templates

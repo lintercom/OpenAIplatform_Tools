@@ -373,3 +373,68 @@ model ServiceTicket {
   @@index([status])
   @@index([urgency])
 }
+
+// Cost Control: Token Budget Tracking
+model TokenBudget {
+  id          String   @id @default(uuid())
+  sessionId   String?
+  workflowId  String?
+  toolId      String?
+  tenantId    String?
+  role        String?  // LLM role (intent_detection, routing, etc.)
+  budgetLimit Int      // Max tokens
+  tokensUsed  Int      @default(0)
+  period      String   // "session" | "workflow" | "tool" | "daily"
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sessionId])
+  @@index([workflowId])
+  @@index([toolId])
+  @@index([tenantId])
+  @@index([role])
+}
+
+// Cost Control: Cost Tracking
+model CostRecord {
+  id          String   @id @default(uuid())
+  sessionId   String?
+  workflowId  String?
+  toolId      String?
+  role        String?  // LLM role
+  tenantId    String?
+  model       String   // e.g., "gpt-4-turbo-preview"
+  inputTokens Int
+  outputTokens Int
+  totalTokens Int
+  costUSD     Float
+  metadata    Json?    // Request details, fallback info, etc.
+  createdAt   DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([workflowId])
+  @@index([toolId])
+  @@index([role])
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+// Cost Control: Context Cache
+model ContextCache {
+  id          String   @id @default(uuid())
+  cacheKey    String   @unique
+  role        String?  // LLM role
+  model       String?  // Model used
+  inputHash   String   // Hash of input + context
+  response    Json     @db.Text
+  hitCount    Int      @default(0)
+  expiresAt   DateTime
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([cacheKey])
+  @@index([role])
+  @@index([expiresAt])
+}
