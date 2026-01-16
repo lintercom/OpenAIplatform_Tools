@@ -87,12 +87,16 @@ model OpenAIDoc {
 model Session {
   id          String   @id @default(uuid())
   leadId      String?
+  tenantId    String?
   consent     Json?    // Consent flags
   metadata    Json?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id])
+
   @@index([leadId])
+  @@index([tenantId])
 }
 
 // Leads
@@ -101,6 +105,7 @@ model Lead {
   email       String?  @unique
   phone       String?
   name        String?
+  tenantId    String?
   stage       String   @default("new")
   score       Int      @default(0)
   tags        String[]
@@ -108,9 +113,12 @@ model Lead {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id])
+
   @@index([email])
   @@index([stage])
   @@index([score])
+  @@index([tenantId])
 }
 
 // Events
