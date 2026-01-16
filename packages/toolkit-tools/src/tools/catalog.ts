@@ -12,7 +12,7 @@ const getServiceSchema = z.object({
 
 const getFAQSchema = z.object({
   category: z.string().optional(),
-  limit: z.number().int().positive().max(50).optional(),
+  limit: z.number().int().min(1).max(50).optional(),
 });
 
 export function createCatalogTools(prisma: PrismaClient): ToolDefinition[] {

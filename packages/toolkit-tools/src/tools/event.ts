@@ -12,7 +12,7 @@ const trackEventSchema = z.object({
 const getTimelineSchema = z.object({
   sessionId: z.string().optional(),
   leadId: z.string().optional(),
-  limit: z.number().int().positive().max(100).optional(),
+  limit: z.number().int().min(1).max(100).optional(),
 });
 
 export function createEventTools(prisma: PrismaClient): ToolDefinition[] {

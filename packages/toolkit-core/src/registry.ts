@@ -39,11 +39,11 @@ export class ToolRegistry {
       id: tool.id,
       category: tool.category,
       description: tool.description,
-      inputSchema: zodToJsonSchema(tool.inputSchema, {
+      inputSchema: zodToJsonSchema(tool.inputSchema as any, {
         target: 'openApi3',
         $refStrategy: 'none',
       }),
-      outputSchema: zodToJsonSchema(tool.outputSchema, {
+      outputSchema: zodToJsonSchema(tool.outputSchema as any, {
         target: 'openApi3',
         $refStrategy: 'none',
       }),
@@ -65,14 +65,23 @@ export class ToolRegistry {
     return Array.from(this.tools.values()).map((tool) => ({
       type: 'function' as const,
       function: {
-        name: tool.id,
+        // OpenAI requires names matching ^[a-zA-Z0-9_-]+$, so replace dots with underscores
+        name: tool.id.replace(/\./g, '_'),
         description: tool.description,
-        parameters: zodToJsonSchema(tool.inputSchema, {
+        parameters: zodToJsonSchema(tool.inputSchema as any, {
           target: 'openApi3',
           $refStrategy: 'none',
         }),
       },
     }));
+  }
+
+  /**
+   * Převede OpenAI function name zpět na tool ID
+   */
+  openAINameToToolId(name: string): string {
+    // Convert underscores back to dots for tool lookup
+    return name.replace(/_/g, '.');
   }
 
   /**
