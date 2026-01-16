@@ -45,5 +45,7 @@ jobs:
           cd ../openai-doc-sync && pnpm publish --access public --no-git-checks
           cd ../workflow-kit && pnpm publish --access public --no-git-checks
           cd ../adapters && pnpm publish --access public --no-git-checks
+          cd ../tool-contract && pnpm publish --access public --no-git-checks
+          cd ../observability && pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

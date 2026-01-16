@@ -1,0 +1,59 @@
+# Source files (pouze dist je publikován)
+src/
+*.ts
+!*.d.ts
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+coverage/
+.nyc_output/
+
+# Build artifacts
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Documentation (kromě README)
+docs/
+*.md
+!README.md
+
+# Scripts
+scripts/
+
+# Infra
+infra/
+
+# Temporary
+*.tmp
+*.temp
+.cache/

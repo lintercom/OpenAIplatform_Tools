@@ -4,7 +4,8 @@ export interface WorkflowContext {
   sessionId?: string;
   leadId?: string;
   userId?: string;
-  metadata?: Record<string, any>;
+  tenantId?: string; // Pro per-tenant API key management
+  metadata?: Record<string, unknown>;
 }
 
 export interface WorkflowResult {

@@ -17,7 +17,7 @@ export class PolicyEngine {
   async checkPolicy(
     tool: ToolDefinition,
     ctx: ToolContext,
-    input: any
+    input: unknown
   ): Promise<PolicyCheckResult> {
     const policy = tool.policy;
     if (!policy) {

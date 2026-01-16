@@ -168,3 +168,68 @@ model Template {
 
   @@index([type])
 }
+
+// Human Review Queue
+model HumanReviewRequest {
+  id          String   @id @default(uuid())
+  toolId      String
+  sessionId   String?
+  leadId      String?
+  userId      String?
+  tenantId    String?
+  input       Json     // Tool input (redacted per policy)
+  status      String   // "pending" | "approved" | "rejected" | "expired"
+  reviewedBy  String?  // User ID who reviewed
+  reviewedAt  DateTime?
+  reviewNotes String?  @db.Text
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([toolId])
+  @@index([status])
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+// Tenant Configuration - ukládá konfiguraci pro každého klienta/tenanta
+model Tenant {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique // URL-friendly identifier
+  active      Boolean  @default(true)
+  metadata    Json?    // Additional tenant metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  apiKeys     TenantAPIKey[]
+  sessions    Session[]
+  leads       Lead[]
+
+  @@index([slug])
+  @@index([active])
+}
+
+// Tenant API Keys - šifrované API klíče pro každého tenanta
+model TenantAPIKey {
+  id          String   @id @default(uuid())
+  tenantId    String
+  provider    String   // "openai" | "anthropic" | etc.
+  keyName     String   // User-friendly name (e.g., "Production", "Development")
+  encryptedKey String  @db.Text // Šifrovaný API klíč
+  keyHash     String   // Hash pro rychlé vyhledávání (první 8 znaků)
+  active      Boolean  @default(true)
+  lastUsedAt  DateTime?
+  metadata    Json?    // { model: "gpt-4", temperature: 0.7, etc. }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, provider, keyName])
+  @@index([tenantId])
+  @@index([provider])
+  @@index([keyHash])
+  @@index([active])
+}

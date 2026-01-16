@@ -55,8 +55,26 @@ jobs:
       - name: Run linter
         run: pnpm lint
 
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Security audit
+        run: pnpm audit --audit-level=moderate || true
+        continue-on-error: true
+
       - name: Run tests
         run: pnpm test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ai_toolkit
+
+      - name: Test coverage
+        run: pnpm test -- --coverage
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ai_toolkit
+        continue-on-error: true
+
+      - name: Validate tools
+        run: pnpm tools:validate
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ai_toolkit
 

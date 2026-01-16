@@ -44,5 +44,5 @@ prisma/migrations/
 *.temp
 .cache/
 
-# Lock files (volitelné - můžete je commitovat)
+# Lock files (doporučeno commitovat pro konzistentní instalace)
 # pnpm-lock.yaml

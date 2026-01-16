@@ -22,6 +22,7 @@
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "typecheck": "pnpm -r exec tsc --noEmit",
     "prisma:generate": "pnpm --filter toolkit-core prisma generate",
     "prisma:migrate": "pnpm --filter toolkit-core prisma migrate dev",
     "prisma:studio": "pnpm --filter toolkit-core prisma studio",
@@ -31,11 +32,18 @@
     "docs:api-docs": "pnpm --filter openai-doc-sync api-docs",
     "docs:api-examples": "pnpm --filter openai-doc-sync api-examples",
     "docs:api-tool-prompt": "pnpm --filter openai-doc-sync api-tool-prompt",
+    "tools:list": "tsx scripts/tools-cli.ts list",
+    "tools:validate": "tsx scripts/tools-cli.ts validate",
+    "tools:docs": "tsx scripts/tools-cli.ts docs",
+    "create-tool": "tsx scripts/create-tool.ts",
+    "setup-tenant-api-key": "tsx scripts/setup-tenant-api-key.ts",
+    "pre-publish": "tsx scripts/pre-publish-check.ts",
     "setup:github": "node scripts/setup-github.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "prettier": "^3.2.5",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.0"
   },

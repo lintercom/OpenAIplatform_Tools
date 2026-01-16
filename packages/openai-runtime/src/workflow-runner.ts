@@ -1,23 +1,64 @@
 import OpenAI from 'openai';
 import { PrismaClient } from '@prisma/client';
-import { ToolRegistry, ToolContext } from '@ai-toolkit/core';
+import { ToolRegistry, ToolContext, OpenAIClientFactory, APIKeyManager } from '@ai-toolkit/core';
 import { WorkflowContext, WorkflowResult, UIDirective, UIDirectiveSchema } from './types';
 
 export interface WorkflowRunnerConfig {
-  openaiApiKey: string;
+  // Legacy: pro backward compatibility
+  openaiApiKey?: string;
+  // Nové: per-tenant API key management
+  apiKeyManager?: APIKeyManager;
+  openaiClientFactory?: OpenAIClientFactory;
+  // Tenant context
+  defaultTenantId?: string;
   model?: string;
   temperature?: number;
 }
 
 export class WorkflowRunner {
-  private openai: OpenAI;
+  private openaiClientFactory: OpenAIClientFactory | null = null;
+  private fallbackOpenai: OpenAI | null = null;
 
   constructor(
     private config: WorkflowRunnerConfig,
     private registry: ToolRegistry,
     private prisma: PrismaClient
   ) {
-    this.openai = new OpenAI({ apiKey: config.openaiApiKey });
+    // Pokud je poskytnut apiKeyManager, použij factory
+    if (config.apiKeyManager) {
+      this.openaiClientFactory = new OpenAIClientFactory(config.apiKeyManager);
+    } else if (config.openaiClientFactory) {
+      this.openaiClientFactory = config.openaiClientFactory;
+    }
+
+    // Fallback: pokud je poskytnut openaiApiKey, vytvoř klienta synchronně
+    if (config.openaiApiKey) {
+      this.fallbackOpenai = new OpenAI({ apiKey: config.openaiApiKey });
+    }
+  }
+
+  /**
+   * Získá OpenAI klienta pro daný context
+   */
+  private async getOpenAIClient(context: WorkflowContext): Promise<OpenAI> {
+    // Pokud máme factory, použij per-tenant API key
+    if (this.openaiClientFactory) {
+      const tenantId = context.tenantId || this.config.defaultTenantId;
+      return await this.openaiClientFactory.createClient({
+        tenantId,
+        fallbackApiKey: this.config.openaiApiKey,
+        model: this.config.model,
+      });
+    }
+
+    // Fallback na synchronní klienta
+    if (this.fallbackOpenai) {
+      return this.fallbackOpenai;
+    }
+
+    throw new Error(
+      'OpenAI client not configured. Provide either apiKeyManager, openaiClientFactory, or openaiApiKey.'
+    );
   }
 
   /**
@@ -51,8 +92,11 @@ export class WorkflowRunner {
       // System prompt
       const systemContent = systemPrompt || this.getDefaultSystemPrompt(workflowId);
 
+      // Získání OpenAI klienta pro tento tenant
+      const openai = await this.getOpenAIClient(context);
+
       // Volání OpenAI Responses API
-      const response = await this.openai.chat.completions.create({
+      const response = await openai.chat.completions.create({
         model: this.config.model || 'gpt-4-turbo-preview',
         temperature: this.config.temperature || 0.7,
         messages: [
@@ -176,7 +220,10 @@ export class WorkflowRunner {
     const tools = this.registry.getOpenAITools();
     const systemContent = systemPrompt || this.getDefaultSystemPrompt(workflowId);
 
-    const stream = await this.openai.chat.completions.create({
+    // Získání OpenAI klienta pro tento tenant
+    const openai = await this.getOpenAIClient(context);
+
+    const stream = await openai.chat.completions.create({
       model: this.config.model || 'gpt-4-turbo-preview',
       temperature: this.config.temperature || 0.7,
       messages: [

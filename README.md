@@ -26,7 +26,21 @@ Produkční monorepo pro vytváření opakovatelné "AI Tools Library" na OpenAI
       schema.prisma
 ```
 
-## Quick Start
+## Instalace jako závislost
+
+Pro použití v jiných projektech:
+
+```bash
+# Z GitHub
+pnpm add @ai-toolkit/core@github:lintercom/OpenAIplatform_Tools
+
+# Nebo z npm (po publikování)
+pnpm add @ai-toolkit/core
+```
+
+Viz [INSTALLATION.md](INSTALLATION.md) pro kompletní instrukce.
+
+## Quick Start (Development)
 
 ### 1. Instalace závislostí
 

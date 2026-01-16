@@ -1,97 +1,112 @@
-# Contributing Guide
+# Contributing to AI Tool Platform
 
-Děkujeme za zájem o přispění do AI Toolkit!
-
-## Jak přispět
-
-### 1. Fork a Clone
+## Development Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ai-toolkit-openai-platform.git
-cd ai-toolkit-openai-platform
+# Install dependencies
 pnpm install
+
+# Generate Prisma client
+pnpm prisma:generate
+
+# Run database migrations
+pnpm prisma:migrate
+
+# Start development
+pnpm dev
 ```
 
-### 2. Vytvoření branch
+## Code Standards
 
+### TypeScript
+- **Strict mode:** Vždy zapnutý
+- **No `any`:** Používej explicitní typy
+- **Explicit return types:** Pro všechny public funkce
+
+### Linting & Formatting
 ```bash
-git checkout -b feature/my-new-feature
-# nebo
-git checkout -b fix/bug-fix
+pnpm lint
+pnpm format
 ```
 
-### 3. Vývoj
-
-- Vytvářejte změny v příslušných packages
-- Přidávejte testy pro nové funkce
-- Ujistěte se, že všechny testy procházejí: `pnpm test`
-- Zkontrolujte linting: `pnpm lint`
-
-### 4. Commit
-
+### Testing
 ```bash
-git add .
-git commit -m "feat: add new feature"
-# nebo
-git commit -m "fix: resolve bug"
-```
-
-Používejte konvenční commit messages:
-- `feat:` - nová funkce
-- `fix:` - oprava bugu
-- `docs:` - dokumentace
-- `test:` - testy
-- `refactor:` - refaktoring
-- `chore:` - údržba
-
-### 5. Push a Pull Request
-
-```bash
-git push origin feature/my-new-feature
-```
-
-Vytvořte Pull Request na GitHubu s popisem změn.
-
-## Struktura projektu
-
-- `packages/toolkit-core` - Core funkcionalita
-- `packages/toolkit-tools` - Built-in tools
-- `packages/openai-runtime` - OpenAI runtime
-- `packages/workflow-kit` - Workflow templates
-- `packages/adapters` - Adapters
-- `apps/api` - API server
-- `apps/web` - Demo UI
-
-## Přidání nového toolu
-
-1. Vytvořte soubor v `packages/toolkit-tools/src/tools/`
-2. Implementujte handler s Zod schemas
-3. Zaregistrujte v `packages/toolkit-tools/src/index.ts`
-4. Přidejte testy
-
-## Přidání nového workflow
-
-1. Vytvořte soubor v `packages/workflow-kit/src/workflows/`
-2. Definujte input/output schemas
-3. Zaregistrujte v `packages/workflow-kit/src/workflows/index.ts`
-
-## Testování
-
-```bash
-# Všechny testy
-pnpm test
-
-# Konkrétní package
-cd packages/toolkit-core
 pnpm test
 ```
 
-## Code Style
+## Adding a New Tool
 
-- Používejte TypeScript strict mode
-- Dodržujte ESLint pravidla
-- Formátujte kód pomocí Prettier: `pnpm format`
+### 1. Create Tool
+```bash
+pnpm create-tool my-tool custom
+```
 
-## Otázky?
+### 2. Implement Tool
+Edit `packages/toolkit-tools/src/tools/my-tool.ts`:
+- Definuj input/output schemas
+- Implementuj handler
+- Přidej examples
+- Nastav risk level, PII level, idempotency
 
-Otevřete Issue nebo kontaktujte maintainery.
+### 3. Write Tests
+Edit `packages/toolkit-tools/src/tools/my-tool.test.ts`:
+- Test validace schemas
+- Test handler logic
+- Test error cases
+
+### 4. Validate
+```bash
+pnpm tools:validate
+```
+
+### 5. Documentation
+- Přidej description do tool kontraktu
+- Přidej examples
+- Aktualizuj README pokud je potřeba
+
+## Definition of Done
+
+Pro každý tool:
+- [ ] Tool má validní `ToolContract`
+- [ ] Input/output schemas jsou definované a validované
+- [ ] Handler je implementovaný
+- [ ] Testy procházejí (`pnpm test`)
+- [ ] Examples jsou přidané
+- [ ] Risk level a PII level jsou správně nastavené
+- [ ] Policy je konfigurovaná (pokud je potřeba)
+- [ ] Tool projde `pnpm tools:validate`
+- [ ] Dokumentace je aktualizovaná
+
+## Commit Messages
+
+Používej [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat: add new tool for X
+fix: fix validation error in Y
+docs: update README
+refactor: simplify Z
+test: add tests for W
+```
+
+## Pull Request Process
+
+1. Vytvoř branch z `main`
+2. Implementuj změny
+3. Ujisti se, že všechny testy procházejí
+4. Aktualizuj dokumentaci
+5. Vytvoř PR s popisem změn
+6. Počkej na review
+
+## Architecture Decisions
+
+Všechny významné architektonické rozhodnutí dokumentujeme v `ADR/`:
+- ADR-0001: Tool Contract Standard
+- ADR-0002: Observability First
+- ...
+
+Při navrhování nového ADR:
+1. Vytvoř soubor `ADR/XXXX-description.md`
+2. Použij template z existujících ADR
+3. Projednej s týmem
+4. Commit do repa

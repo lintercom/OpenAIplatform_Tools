@@ -5,11 +5,11 @@ interface LogInput {
   toolId: string;
   sessionId?: string;
   leadId?: string;
-  input: any;
-  output?: any;
+  input: unknown;
+  output?: unknown;
   status: 'success' | 'error' | 'blocked';
   error?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class AuditLogger {
@@ -24,11 +24,11 @@ export class AuditLogger {
         toolId: input.toolId,
         sessionId: input.sessionId,
         leadId: input.leadId,
-        input: input.input as any,
-        output: input.output as any,
+        input: input.input as Record<string, unknown>,
+        output: input.output as Record<string, unknown> | null,
         status: input.status,
         error: input.error,
-        metadata: input.metadata as any,
+        metadata: input.metadata as Record<string, unknown> | null,
       },
     });
 
@@ -63,11 +63,11 @@ export class AuditLogger {
       toolId: entry.toolId,
       sessionId: entry.sessionId || undefined,
       leadId: entry.leadId || undefined,
-      input: entry.input as any,
-      output: entry.output as any,
+      input: entry.input as unknown,
+      output: entry.output as unknown,
       status: entry.status as 'success' | 'error' | 'blocked',
       error: entry.error || undefined,
-      metadata: entry.metadata as any,
+      metadata: entry.metadata as Record<string, unknown> | undefined,
       createdAt: entry.createdAt,
     }));
   }

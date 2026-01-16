@@ -16,7 +16,10 @@ export interface ToolPolicy {
   rolesAllowed?: string[];
 }
 
-export interface ToolDefinition<TInput = any, TOutput = any> {
+// JSON Schema type (simplified)
+export type JSONSchema = Record<string, unknown>;
+
+export interface ToolDefinition<TInput = unknown, TOutput = unknown> {
   id: string;
   category: string;
   description: string;
@@ -31,10 +34,10 @@ export interface ToolContext {
   leadId?: string;
   userId?: string;
   role?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
-export interface ToolCallResult<TOutput = any> {
+export interface ToolCallResult<TOutput = unknown> {
   success: boolean;
   output?: TOutput;
   error?: string;
@@ -45,8 +48,8 @@ export interface ToolMetadata {
   id: string;
   category: string;
   description: string;
-  inputSchema: any; // JSON Schema
-  outputSchema: any; // JSON Schema
+  inputSchema: JSONSchema;
+  outputSchema: JSONSchema;
   policy?: ToolPolicy;
 }
 
@@ -55,10 +58,10 @@ export interface AuditLogEntry {
   toolId: string;
   sessionId?: string;
   leadId?: string;
-  input: any;
-  output?: any;
+  input: unknown;
+  output?: unknown;
   status: 'success' | 'error' | 'blocked';
   error?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
 }

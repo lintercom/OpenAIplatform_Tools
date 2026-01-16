@@ -1,171 +1,253 @@
-# Architektura AI Toolkit
+# Enterprise AI Tool Platform - Architecture
 
 ## Přehled
 
-AI Toolkit je modulární monorepo pro vytváření opakovatelné "AI Tools Library" na OpenAI Agent Platform. Systém je navržen tak, aby umožňoval kompozici tools a workflows pro různé business účely.
+Platforma je navržena jako monorepo s jasně oddělenými zodpovědnostmi:
 
-## Architektonické vrstvy
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    API Gateway (apps/api)                    │
+│  - Request routing                                           │
+│  - Authentication/Authorization                              │
+│  - Observability middleware (tracing, logging, metrics)     │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Tool Registry (toolkit-core)                    │
+│  - Tool registration & discovery                             │
+│  - Contract validation                                        │
+│  - Policy enforcement                                        │
+│  - Audit logging                                             │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        ▼              ▼              ▼
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│   Tools      │ │  Workflows   │ │  Observability│
+│ (toolkit-    │ │ (workflow-   │ │ (observability│
+│  tools)      │ │  kit)        │ │  )            │
+└──────────────┘ └──────────────┘ └──────────────┘
+```
 
-### 1. Core Layer (`packages/toolkit-core`)
+## Balíčky
 
-**Tool Registry**
-- Centrální registr všech tools
-- Validace vstupů/výstupů pomocí Zod
-- Export do OpenAI function calling formátu
+### @ai-toolkit/tool-contract
+**Zodpovědnost:** Enterprise standardizované rozhraní pro tools
 
-**Policy Engine**
-- Rate limiting (global/session/lead scope)
-- Domain whitelist enforcement
-- Role-based access control
-- Human review requirements
+**Klíčové komponenty:**
+- `ToolContract` - Kompletní metadata pro tool
+- `ToolExecutionContext` - Context s observability
+- `ToolExecutionResult` - Standardizovaný výsledek
+- `ToolError` - RFC 7807 Problem Details errors
+- `ToolContractValidator` - Validace kontraktů
 
-**Audit Logger**
-- Automatické logování všech tool invokací
-- PII redakce podle policy
-- Ukládání do PostgreSQL
+**Použití:**
+```typescript
+import { ToolContract, ToolRiskLevel, PIILevel } from '@ai-toolkit/tool-contract';
 
-### 2. Tools Layer (`packages/toolkit-tools`)
+const myTool: ToolContract = {
+  id: 'my.tool',
+  name: 'My Tool',
+  version: '1.0.0',
+  // ... metadata
+  handler: async (ctx, input) => { ... },
+};
+```
 
-Built-in tools organizované do kategorií:
-- **Session**: Správa session a consent
-- **Lead**: CRM operace s leady
-- **Event**: Event tracking a timeline
-- **Catalog**: Služby a FAQ
-- **Template**: Template rendering
-- **Message**: Odesílání zpráv
-- **CRM**: Synchronizace s externím CRM
-- **Pricing**: Pricing rules a nabídky
-- **Verify**: Verifikace na whitelisted doménách
+### @ai-toolkit/observability
+**Zodpovědnost:** Tracing, logging, metrics
 
-### 3. Runtime Layer (`packages/openai-runtime`)
+**Klíčové komponenty:**
+- `Tracer` - Distributed tracing
+- `StructuredLogger` - JSON logging
+- `MetricsCollector` - Metrics collection
 
-**WorkflowRunner**
-- Wrapper pro OpenAI Responses API
-- Automatické tool calling
-- Streaming support
-- Tracing a workflow run tracking
+**Použití:**
+```typescript
+import { tracer, logger, metrics } from '@ai-toolkit/observability';
 
-### 4. Workflow Layer (`packages/workflow-kit`)
+const context = tracer.startSpan('operation');
+logger.info('Operation started', { userId: '123' });
+metrics.increment('operation.count');
+```
 
-**Workflow Templates**
-- Router: Routing konverzací
-- Qualification: Kvalifikace leadů
-- Booking: Rezervace služeb
-- Follow-up: Follow-up konverzace
-- Support: Podpora zákazníka
-- Content: Správa obsahu (admin)
+### @ai-toolkit/core
+**Zodpovědnost:** Tool Registry, Policy Engine, Audit Logger
 
-Každý workflow definuje:
-- Input/output schemas (Zod)
-- System prompt
-- Required tools
-- UI Directive contract
+**Klíčové komponenty:**
+- `ToolRegistryV2` - Enterprise registry s observability
+- `PolicyEngine` - Policy enforcement
+- `AuditLogger` - Audit logging
 
-### 5. Adapters Layer (`packages/adapters`)
+**Použití:**
+```typescript
+import { ToolRegistryV2 } from '@ai-toolkit/core';
 
-Rozhraní pro externí služby:
-- CRM Adapter
-- Email Adapter
-- Calendar Adapter
-- Storage Adapter
+const registry = new ToolRegistryV2(prisma);
+registry.register(tool);
+const result = await registry.invokeTool('my.tool', context, input);
+```
 
-Poskytuje mock implementace pro vývoj.
+### @ai-toolkit/tools
+**Zodpovědnost:** Built-in tools
 
-### 6. Doc Sync Layer (`packages/openai-doc-sync`)
+**Struktura:**
+- Každý tool je v samostatném souboru
+- Exportuje funkci `create*Tools()` která vrací `ToolContract[]`
+- Automatická registrace v `index.ts`
 
-Pipeline pro synchronizaci OpenAI dokumentace:
-- Fetcher: Stahování HTML stránek
-- Parser: Extrakce obsahu a sekcí
-- Indexer: Full-text search v PostgreSQL
-- CLI: `docs:sync`, `docs:search`, `docs:prompt-pack`
+### @ai-toolkit/workflow-kit
+**Zodpovědnost:** Reusable workflow templates
 
-### 7. API Layer (`apps/api`)
+**Struktura:**
+- Workflow definice jako TypeScript moduly
+- Každý workflow má: inputs, outputs, steps, systemPrompt
 
-Fastify backend server s endpoints:
-- Session management
-- Event tracking
-- Tool invocation
-- Agent workflows
-- Admin audit/workflow runs
+### @ai-toolkit/openai-runtime
+**Zodpovědnost:** OpenAI API wrapper
 
-### 8. Web Layer (`apps/web`)
-
-Minimální React demo UI pro testování.
+**Klíčové komponenty:**
+- `WorkflowRunner` - Spouštění workflows
+- `AgentsSDKRunner` - OpenAI Agents SDK wrapper
 
 ## Data Flow
 
+### Tool Execution Flow
+
 ```
-User Message
-    ↓
-API Endpoint (/agent/next)
-    ↓
-WorkflowRunner
-    ↓
-OpenAI API (with tools)
-    ↓
-Tool Registry (invoke tools)
-    ↓
-Policy Engine (check policies)
-    ↓
-Tool Handler (execute)
-    ↓
-Audit Logger (log)
-    ↓
-UI Directives (return)
+1. Request přijde do API Gateway
+   ↓
+2. Middleware vytvoří execution context (requestId, correlationId, traceId)
+   ↓
+3. Gateway volá registry.invokeTool(toolId, context, input)
+   ↓
+4. Registry:
+   a) Validuje input podle schema
+   b) Kontroluje policy (rate limits, roles, etc.)
+   c) Začne trace span
+   d) Spustí handler
+   e) Validuje output
+   f) Zaznamená metrics
+   g) Loguje do audit logu
+   ↓
+5. Vrátí ToolExecutionResult
+   ↓
+6. Gateway vrací response s observability headers
 ```
 
-## Bezpečnost
+### Policy Enforcement
 
-1. **PII Redakce**: Automatická redakce citlivých dat v audit logu
-2. **Rate Limiting**: Per-tool, per-session, per-lead
-3. **Domain Whitelist**: Pro verify tools
-4. **Role-based Access**: Pro admin endpoints
-5. **Human Review**: Fronta pro rizikové operace
+```
+Policy Engine kontroluje:
+1. Role-based access (requiredRoles)
+2. Rate limiting (maxCalls, windowMs, scope)
+3. Domain whitelist (pro verify tools)
+4. Tenant isolation (tenantId)
+5. Human review requirements
+```
 
-## Rozšiřitelnost
+### Observability
 
-### Přidání nového toolu
+**Tracing:**
+- Každý tool call má traceId a spanId
+- Spany jsou hierarchické (parent-child)
+- Export do OpenTelemetry formátu
 
-1. Vytvoř tool definici v `packages/toolkit-tools/src/tools/`
-2. Implementuj handler s Zod schemas
-3. Zaregistruj v `registerAllTools()`
-4. Přidej testy
+**Logging:**
+- Structured JSON logs
+- Každý log má: timestamp, level, message, context (requestId, correlationId, traceId)
+- Tool execution logs obsahují: latency, cost, policy decision
 
-### Vytvoření nového workflow
+**Metrics:**
+- Latency histogramy
+- Success/error counters
+- Cost tracking
+- Policy decision metrics
 
-1. Definuj workflow template v `packages/workflow-kit/src/workflows/`
-2. Použij tools z registry
-3. Implementuj system prompt
-4. Zaregistruj v `workflows/index.ts`
+## Security
 
-### Přidání adaptéru
+### PII Handling
+- Tools mají `piiLevel` (none, low, medium, high, critical)
+- Audit logs automaticky redaktují PII podle levelu
+- Redakce je konfigurovatelná per tool
 
-1. Implementuj interface z `packages/adapters/src/types.ts`
-2. Vytvoř implementaci (mock nebo skutečnou)
-3. Použij v tools, které to potřebují
+### Access Control
+- Role-based (RBAC)
+- Permission-based (ABAC) - připravováno
+- Tenant isolation - připravováno
 
-## Databáze
+### Rate Limiting
+- Per tool, per scope (global, session, user, tenant)
+- In-memory cache (v produkci by bylo v Redis)
 
-PostgreSQL s Prisma ORM:
-- `Tool` - Tool registry metadata
-- `ToolCall` - Audit log
-- `WorkflowRun` - Workflow execution tracking
-- `OpenAIDoc` - Dokumentační cache
-- `Session` - User sessions
-- `Lead` - CRM leads
-- `Event` - Event tracking
-- `CatalogService`, `CatalogFAQ` - Katalog
-- `Template` - Templates
+## Tool Authoring
+
+### Vytvoření nového toolu
+
+```bash
+pnpm create-tool my-tool custom
+```
+
+Toto vytvoří:
+- `packages/toolkit-tools/src/tools/my-tool.ts` - Tool implementace
+- `packages/toolkit-tools/src/tools/my-tool.test.ts` - Testy
+- Automatickou registraci v `index.ts`
+
+### Definition of Done pro tool
+
+- [ ] Tool má validní `ToolContract`
+- [ ] Input/output schemas jsou definované
+- [ ] Handler je implementovaný
+- [ ] Testy procházejí
+- [ ] Examples jsou přidané
+- [ ] Dokumentace je aktualizovaná
+- [ ] Risk level a PII level jsou správně nastavené
+- [ ] Policy je konfigurovaná (pokud je potřeba)
+- [ ] Tool projde `pnpm tools:validate`
 
 ## Deployment
 
-1. Build: `pnpm build`
-2. Migrace: `pnpm prisma:migrate`
-3. Seed: `pnpm prisma:seed`
-4. Start: `pnpm start` (v produkci použij PM2/systemd)
+### Build
+```bash
+pnpm build
+```
+
+### Test
+```bash
+pnpm test
+pnpm typecheck
+pnpm lint
+pnpm tools:validate
+```
+
+### Database
+```bash
+pnpm prisma:generate
+pnpm prisma:migrate
+```
 
 ## Monitoring
 
-- Audit logy: `/admin/audit/tool-calls`
-- Workflow runs: `/admin/workflow-runs`
-- Health check: `/health`
+### Health Checks
+- `/health` - Basic health check
+- `/health/ready` - Readiness check (DB connection)
+- `/health/live` - Liveness check
+
+### Metrics Endpoint
+- `/metrics` - Prometheus format (připravováno)
+
+### Audit Logs
+- `/admin/audit/tool-calls` - Query audit logs
+- `/admin/workflow-runs` - Query workflow runs
+
+## Next Steps
+
+1. **Architect Tool** - Tool pro skládání architektur z capability tools
+2. **ABAC Policy Engine** - Attribute-based access control
+3. **Multi-tenancy** - Tenant isolation
+4. **Workflow DAG Runner** - Orchestrace workflows s dependencies
+5. **Cost Tracking** - Detailní cost tracking a budgeting
+6. **Human Review Queue** - Fronta pro human review
+7. **OpenTelemetry Integration** - Export traces do OTel
+8. **Prometheus Metrics** - Export metrics do Prometheus
