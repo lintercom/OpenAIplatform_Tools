@@ -13,6 +13,13 @@ Tento dokument obsahuje kompletní seznam všech built-in AI tools dostupných v
 - [CRM Tools](#crm-tools)
 - [Pricing Tools](#pricing-tools)
 - [Verify Tools](#verify-tools)
+- [Commerce Tools - Cart](#commerce-tools---cart)
+- [Commerce Tools - Order](#commerce-tools---order)
+- [Commerce Tools - Product](#commerce-tools---product)
+- [Commerce Tools - Checkout](#commerce-tools---checkout)
+- [Intent Tools](#intent-tools)
+- [Quote Tools](#quote-tools)
+- [Service Tools](#service-tools)
 
 ---
 
