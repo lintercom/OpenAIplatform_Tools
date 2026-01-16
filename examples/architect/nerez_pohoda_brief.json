@@ -1,0 +1,89 @@
+{
+  "id": "brief-nerez-pohoda",
+  "name": "Nerez Pohoda E-shop",
+  "description": "E-shop pro prodej nerezového zboží s integrací do POHODA ERP",
+  "goals": [
+    "Prodej nerezového zboží online",
+    "Integrace s POHODA ERP",
+    "AI asistent pro zákazníky",
+    "Správa objednávek a skladu",
+    "Generování nabídek pro B2B zákazníky"
+  ],
+  "successCriteria": [
+    "Zákazníci mohou nakupovat online",
+    "Objednávky se automaticky přenášejí do POHODA",
+    "Sklad je synchronizován s POHODA",
+    "AI asistent pomáhá s výběrem produktů",
+    "B2B zákazníci mohou žádat o nabídky"
+  ],
+  "constraints": {
+    "budget": {
+      "maxCostPerMonth": 500,
+      "maxCostPerRequest": 0.05
+    },
+    "timeline": {
+      "mvpDeadline": "2024-06-01",
+      "fullDeadline": "2024-09-01"
+    },
+    "technical": [
+      "Must use PostgreSQL",
+      "Must support 1000 concurrent users",
+      "Must integrate with POHODA ERP"
+    ],
+    "compliance": [
+      "GDPR"
+    ]
+  },
+  "integrations": [
+    {
+      "name": "POHODA",
+      "type": "erp",
+      "description": "ERP systém pro správu skladu, objednávek a faktur",
+      "required": true
+    }
+  ],
+  "security": {
+    "authentication": "oauth",
+    "authorization": "rbac",
+    "piiHandling": "encrypt",
+    "tenantIsolation": true
+  },
+  "realtime": {
+    "required": true,
+    "useCases": [
+      "Live chat s AI asistentem",
+      "Real-time skladová dostupnost",
+      "Notifikace o změnách objednávky"
+    ]
+  },
+  "domain": "e-commerce",
+  "industry": "manufacturing",
+  "useCase": "b2b-b2c-ecommerce",
+  "userTypes": [
+    {
+      "role": "customer",
+      "description": "B2C zákazník nakupující online",
+      "permissions": ["view_products", "add_to_cart", "create_order"]
+    },
+    {
+      "role": "b2b_customer",
+      "description": "B2B zákazník s možností žádat o nabídky",
+      "permissions": ["view_products", "request_quote", "view_pricing"]
+    },
+    {
+      "role": "admin",
+      "description": "Administrátor systému",
+      "permissions": ["all"]
+    }
+  ],
+  "dataQuality": {
+    "completeness": "high",
+    "accuracy": "high",
+    "frequency": "near-realtime"
+  },
+  "uxNeeds": {
+    "personalization": true,
+    "recommendations": true,
+    "naturalLanguage": true
+  }
+}

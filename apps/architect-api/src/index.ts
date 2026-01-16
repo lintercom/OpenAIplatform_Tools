@@ -94,7 +94,36 @@ fastify.post<{ Params: { id: string }; Body: { message: string } }>(
 
     if (nextQuestion) {
       // Uložit odpověď do briefu (zjednodušené)
-      // V produkci by se použil LLM pro parsing
+      // V produkci by se použil LLM pro parsing message a uložení do správného field
+      // Pro teď: pokud je to odpověď na otázku, uložíme ji
+      if (nextQuestion.field) {
+        const fieldParts = nextQuestion.field.split('.');
+        let target: any = session.brief;
+        for (let i = 0; i < fieldParts.length - 1; i++) {
+          const part = fieldParts[i];
+          if (!target[part]) {
+            target[part] = {};
+          }
+          target = target[part];
+        }
+        const lastPart = fieldParts[fieldParts.length - 1];
+        if (nextQuestion.type === 'boolean') {
+          target[lastPart] = message.toLowerCase().includes('ano') || message.toLowerCase().includes('yes');
+        } else if (nextQuestion.type === 'number') {
+          const num = parseFloat(message);
+          if (!isNaN(num)) {
+            target[lastPart] = num;
+          }
+        } else if (nextQuestion.type === 'multi-choice') {
+          if (!Array.isArray(target[lastPart])) {
+            target[lastPart] = [];
+          }
+          target[lastPart].push(message);
+        } else {
+          target[lastPart] = message;
+        }
+      }
+
       return {
         response: nextQuestion.text,
         question: nextQuestion,
@@ -180,7 +209,7 @@ fastify.post<{ Params: { id: string }; Body: { format: 'json' | 'markdown' } }>(
     }
 
     // Markdown export (zjednodušené)
-    const markdown = this.exportToMarkdown(session.artifacts);
+    const markdown = exportToMarkdown(session.artifacts);
     return { markdown };
   }
 );
