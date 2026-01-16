@@ -71,16 +71,16 @@ export class CostMonitoring {
     });
 
     // Agregace
-    const totalCost = records.reduce((sum, r) => sum + r.costUSD, 0);
-    const totalTokens = records.reduce((sum, r) => sum + r.totalTokens, 0);
+    const totalCost = records.reduce((sum: number, r: typeof records[0]) => sum + r.costUSD, 0);
+    const totalTokens = records.reduce((sum: number, r: typeof records[0]) => sum + r.totalTokens, 0);
     const requestCount = records.length;
 
     // Cache hit rate (z metadata)
-    const cachedCount = records.filter((r) => (r.metadata as any)?.cached).length;
+    const cachedCount = records.filter((r: typeof records[0]) => (r.metadata as Record<string, unknown>)?.cached).length;
     const cacheHitRate = requestCount > 0 ? cachedCount / requestCount : 0;
 
     // Fallback rate
-    const fallbackCount = records.filter((r) => (r.metadata as any)?.fallback).length;
+    const fallbackCount = records.filter((r: typeof records[0]) => (r.metadata as Record<string, unknown>)?.fallback).length;
     const fallbackRate = requestCount > 0 ? fallbackCount / requestCount : 0;
 
     // Breakdown by role

@@ -121,9 +121,9 @@ export class LLMRoleRouter {
     }
 
     // 6. Zkrátit kontext pokud bylo rozhodnuto
-    let finalMessages = messages;
+    let finalMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = messages as Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
     if (budgetDecision.action === 'truncate_context' && budgetDecision.maxTokens) {
-      finalMessages = this.truncateMessages(messages, budgetDecision.maxTokens);
+      finalMessages = this.truncateMessages(messages, budgetDecision.maxTokens) as Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
     }
 
     // 7. Volat LLM

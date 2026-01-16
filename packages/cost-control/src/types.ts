@@ -50,7 +50,7 @@ export interface BudgetContext {
 export interface BudgetDecision {
   allowed: boolean;
   reason?: string;
-  action?: 'allow' | 'downgrade_model' | 'truncate_context' | 'fallback';
+  action?: 'allow' | 'downgrade_model' | 'truncate_context' | 'fallback' | 'reject';
   suggestedModel?: string;
   maxTokens?: number;
 }

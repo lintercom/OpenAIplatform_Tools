@@ -427,7 +427,7 @@ model ContextCache {
   role        String?  // LLM role
   model       String?  // Model used
   inputHash   String   // Hash of input + context
-  response    Json     @db.Text
+  response    Json
   hitCount    Int      @default(0)
   expiresAt   DateTime
   metadata    Json?
