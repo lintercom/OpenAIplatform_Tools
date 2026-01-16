@@ -9,7 +9,7 @@ Tento dokument popisuje, jak nastavit a použít nové e-commerce tools v AI Too
 - Node.js 20+
 - pnpm 8+
 - PostgreSQL (Docker nebo lokální)
-- Prisma CLI
+- Prisma CLI (součástí projektu)
 
 ## Krok 1: Prisma Migrace
 
@@ -25,6 +25,12 @@ pnpm prisma:migrate
 ```
 
 Toto vytvoří novou migraci s názvem `add_ecommerce_models` (nebo podobným).
+
+**Poznámka:** Pokud máš lokální databázi, ujisti se, že je spuštěná:
+```bash
+cd infra
+docker-compose up -d
+```
 
 ## Krok 2: Generování Prisma Client
 
@@ -311,6 +317,10 @@ await prisma.product.createMany({
 ### TypeScript chyby
 - Spusť `pnpm typecheck` pro kontrolu typů
 - Ujisti se, že všechny imports jsou správné
+
+### Prisma verze konflikt
+- Projekt používá Prisma 5.9.0
+- Použij `pnpm exec prisma` místo `npx prisma` pro zajištění správné verze
 
 ## Další kroky
 
