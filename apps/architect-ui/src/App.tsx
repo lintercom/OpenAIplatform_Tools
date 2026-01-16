@@ -29,6 +29,9 @@ function App() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'blueprint' | 'topology' | 'workflows' | 'plan' | 'adrs'>('plan');
+  const [apiKey, setApiKey] = useState('');
+  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
 
   // Initialize session
   useEffect(() => {
@@ -40,19 +43,72 @@ function App() {
         .then((res) => res.json())
         .then((data) => {
           setSessionId(data.sessionId);
+          setHasApiKey(data.hasApiKey || false);
+          if (!data.hasApiKey) {
+            setShowApiKeyDialog(true);
+          }
           setMessages([
             {
               id: '1',
               role: 'assistant',
-              content: 'Ahoj! Jsem Architect - nástroj pro plánování systémové architektury. Pomůžu ti navrhnout systém postavený na tool-first architektuře. Začneme?',
+              content: data.hasApiKey
+                ? 'Ahoj! Jsem Architect - nástroj pro plánování systémové architektury. Pomůžu ti navrhnout systém postavený na tool-first architektuře. Začneme?'
+                : 'Ahoj! Jsem Architect. Nejdřív potřebuji nastavit OpenAI API key. Klikni na tlačítko "Nastavit API Key" výše.',
             },
           ]);
         });
     }
   }, [sessionId]);
 
+  // Check API key status
+  useEffect(() => {
+    if (sessionId && !hasApiKey) {
+      fetch(`/api/sessions/${sessionId}/api-key-status`)
+        .then((res) => res.json())
+        .then((data) => {
+          setHasApiKey(data.hasApiKey);
+        });
+    }
+  }, [sessionId, hasApiKey]);
+
+  const saveApiKey = async () => {
+    if (!apiKey.trim() || !sessionId) return;
+
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}/api-key`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey }),
+      });
+
+      if (response.ok) {
+        setHasApiKey(true);
+        setShowApiKeyDialog(false);
+        setApiKey('');
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: 'assistant',
+            content: '✅ API key uložena! Nyní můžeme začít. Popiš mi, co chceš vytvořit.',
+          },
+        ]);
+      } else {
+        alert('Chyba při ukládání API key');
+      }
+    } catch (error) {
+      console.error('Error saving API key:', error);
+      alert('Chyba při ukládání API key');
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || !sessionId || loading) return;
+
+    if (!hasApiKey) {
+      setShowApiKeyDialog(true);
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -122,9 +178,39 @@ function App() {
 
   return (
     <div className="app">
+      {showApiKeyDialog && (
+        <div className="api-key-dialog-overlay">
+          <div className="api-key-dialog">
+            <h2>Nastavit OpenAI API Key</h2>
+            <p>Pro fungování Architect potřebuji OpenAI API key.</p>
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="sk-..."
+              className="api-key-input"
+            />
+            <div className="api-key-buttons">
+              <button onClick={saveApiKey} disabled={!apiKey.trim()}>
+                Uložit
+              </button>
+              <button onClick={() => setShowApiKeyDialog(false)}>Zrušit</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="chat-panel">
         <div className="chat-header">
           <h1>Architect</h1>
+          {!hasApiKey && (
+            <button
+              className="api-key-button"
+              onClick={() => setShowApiKeyDialog(true)}
+            >
+              Nastavit API Key
+            </button>
+          )}
         </div>
         <div className="chat-messages">
           {messages.map((msg) => (

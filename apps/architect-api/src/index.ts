@@ -21,6 +21,8 @@ import {
   ProjectBrief,
   ProjectBriefSchema,
 } from '@ai-toolkit/architect-core';
+import { WorkflowRunner } from '@ai-toolkit/openai-runtime';
+import OpenAI from 'openai';
 
 const prisma = new PrismaClient();
 const registry = new ToolRegistryV2(prisma);
@@ -59,8 +61,11 @@ interface ArchitectSession {
 
 const sessions = new Map<string, ArchitectSession>();
 
+// OpenAI client storage (per session)
+const openaiClients = new Map<string, OpenAI>();
+
 // POST /sessions
-fastify.post('/sessions', async (request, reply) => {
+fastify.post<{ Body?: { openaiApiKey?: string } }>('/sessions', async (request, reply) => {
   const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   const session: ArchitectSession = {
@@ -73,7 +78,38 @@ fastify.post('/sessions', async (request, reply) => {
 
   sessions.set(sessionId, session);
 
-  return { sessionId };
+  // Pokud je poskytnut API key, uložit ho
+  if (request.body?.openaiApiKey) {
+    openaiClients.set(sessionId, new OpenAI({ apiKey: request.body.openaiApiKey }));
+  } else if (process.env.OPENAI_API_KEY) {
+    // Fallback na env variable
+    openaiClients.set(sessionId, new OpenAI({ apiKey: process.env.OPENAI_API_KEY }));
+  }
+
+  return { sessionId, hasApiKey: openaiClients.has(sessionId) };
+});
+
+// POST /sessions/:id/api-key
+fastify.post<{ Params: { id: string }; Body: { apiKey: string } }>(
+  '/sessions/:id/api-key',
+  async (request, reply) => {
+    const { id } = request.params;
+    const { apiKey } = request.body;
+
+    const session = sessions.get(id);
+    if (!session) {
+      return reply.code(404).send({ error: 'Session not found' });
+    }
+
+    openaiClients.set(id, new OpenAI({ apiKey }));
+    return { success: true, message: 'API key saved' };
+  }
+);
+
+// GET /sessions/:id/api-key-status
+fastify.get<{ Params: { id: string } }>('/sessions/:id/api-key-status', async (request, reply) => {
+  const { id } = request.params;
+  return { hasApiKey: openaiClients.has(id) };
 });
 
 // POST /sessions/:id/messages
@@ -88,39 +124,87 @@ fastify.post<{ Params: { id: string }; Body: { message: string } }>(
       return reply.code(404).send({ error: 'Session not found' });
     }
 
-    // TODO: Zpracovat message pomocí LLM a questionnaire engine
-    // Pro teď: jednoduchá logika
+    // Získat OpenAI klienta pro tuto session
+    const openai = openaiClients.get(id);
+    if (!openai) {
+      return reply.code(400).send({
+        error: 'OpenAI API key not set',
+        message: 'Please set OpenAI API key first using POST /sessions/:id/api-key',
+      });
+    }
+
+    // Zpracovat message pomocí LLM a questionnaire engine
     const nextQuestion = questionnaire.getNextQuestion(session.brief);
 
     if (nextQuestion) {
-      // Uložit odpověď do briefu (zjednodušené)
-      // V produkci by se použil LLM pro parsing message a uložení do správného field
-      // Pro teď: pokud je to odpověď na otázku, uložíme ji
-      if (nextQuestion.field) {
-        const fieldParts = nextQuestion.field.split('.');
-        let target: any = session.brief;
-        for (let i = 0; i < fieldParts.length - 1; i++) {
-          const part = fieldParts[i];
-          if (!target[part]) {
-            target[part] = {};
+      // Použít LLM pro parsing odpovědi a uložení do briefu
+      try {
+        const llmResponse = await openai.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          temperature: 0.3,
+          messages: [
+            {
+              role: 'system',
+              content: `Jsi asistent, který parsuje odpovědi uživatele a ukládá je do strukturovaného formátu.
+Otázka: ${nextQuestion.text}
+Typ odpovědi: ${nextQuestion.type}
+Field: ${nextQuestion.field}
+
+Vrať JSON s hodnotou pro uložení do field. Pro boolean vrať true/false, pro number vrať číslo, pro multi-choice vrať pole.`,
+            },
+            {
+              role: 'user',
+              content: message,
+            },
+          ],
+          response_format: { type: 'json_object' },
+        });
+
+        const parsed = JSON.parse(llmResponse.choices[0]?.message?.content || '{}');
+        const value = parsed.value || parsed;
+
+        // Uložit do briefu
+        if (nextQuestion.field) {
+          const fieldParts = nextQuestion.field.split('.');
+          let target: any = session.brief;
+          for (let i = 0; i < fieldParts.length - 1; i++) {
+            const part = fieldParts[i];
+            if (!target[part]) {
+              target[part] = {};
+            }
+            target = target[part];
           }
-          target = target[part];
+          const lastPart = fieldParts[fieldParts.length - 1];
+          target[lastPart] = value;
         }
-        const lastPart = fieldParts[fieldParts.length - 1];
-        if (nextQuestion.type === 'boolean') {
-          target[lastPart] = message.toLowerCase().includes('ano') || message.toLowerCase().includes('yes');
-        } else if (nextQuestion.type === 'number') {
-          const num = parseFloat(message);
-          if (!isNaN(num)) {
-            target[lastPart] = num;
+      } catch (error) {
+        // Fallback: jednoduché parsing
+        if (nextQuestion.field) {
+          const fieldParts = nextQuestion.field.split('.');
+          let target: any = session.brief;
+          for (let i = 0; i < fieldParts.length - 1; i++) {
+            const part = fieldParts[i];
+            if (!target[part]) {
+              target[part] = {};
+            }
+            target = target[part];
           }
-        } else if (nextQuestion.type === 'multi-choice') {
-          if (!Array.isArray(target[lastPart])) {
-            target[lastPart] = [];
+          const lastPart = fieldParts[fieldParts.length - 1];
+          if (nextQuestion.type === 'boolean') {
+            target[lastPart] = message.toLowerCase().includes('ano') || message.toLowerCase().includes('yes');
+          } else if (nextQuestion.type === 'number') {
+            const num = parseFloat(message);
+            if (!isNaN(num)) {
+              target[lastPart] = num;
+            }
+          } else if (nextQuestion.type === 'multi-choice') {
+            if (!Array.isArray(target[lastPart])) {
+              target[lastPart] = [];
+            }
+            target[lastPart].push(message);
+          } else {
+            target[lastPart] = message;
           }
-          target[lastPart].push(message);
-        } else {
-          target[lastPart] = message;
         }
       }
 
@@ -131,8 +215,36 @@ fastify.post<{ Params: { id: string }; Body: { message: string } }>(
       };
     }
 
-    // Brief je kompletní - generovat plán
-    const brief = ProjectBriefSchema.parse(session.brief);
+    // Brief je kompletní - generovat plán pomocí LLM
+    // Nejdřív použít LLM pro doplnění chybějících informací
+    let enhancedBrief = { ...session.brief };
+
+    try {
+      const llmResponse = await openai.chat.completions.create({
+        model: 'gpt-4-turbo-preview',
+        temperature: 0.3,
+        messages: [
+          {
+            role: 'system',
+            content: `Jsi asistent pro doplnění Project Brief. Uživatel poskytl následující informace.
+Doplni chybějící povinná pole a vrať kompletní Project Brief jako JSON podle schema.`,
+          },
+          {
+            role: 'user',
+            content: `Aktuální brief: ${JSON.stringify(session.brief, null, 2)}`,
+          },
+        ],
+        response_format: { type: 'json_object' },
+      });
+
+      const parsed = JSON.parse(llmResponse.choices[0]?.message?.content || '{}');
+      enhancedBrief = { ...enhancedBrief, ...parsed };
+    } catch (error) {
+      console.error('LLM enhancement failed:', error);
+      // Pokračovat s původním briefem
+    }
+
+    const brief = ProjectBriefSchema.parse(enhancedBrief);
 
     // Planning pipeline
     const capabilityPlan = capabilityPlanner.plan(brief);
