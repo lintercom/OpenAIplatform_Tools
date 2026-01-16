@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Rychlý průvodce pro spuštění AI Toolkit platformy.
+Rychlý průvodce pro spuštění AI Toolkit platformy pro lokální vývoj.
 
 ## Požadavky
 

@@ -31,14 +31,16 @@ Produkční monorepo pro vytváření opakovatelné "AI Tools Library" na OpenAI
 Pro použití v jiných projektech:
 
 ```bash
-# Z GitHub
+# Z GitHub (doporučeno)
 pnpm add @ai-toolkit/core@github:lintercom/OpenAIplatform_Tools
+pnpm add @ai-toolkit/tools@github:lintercom/OpenAIplatform_Tools
+pnpm add @ai-toolkit/openai-runtime@github:lintercom/OpenAIplatform_Tools
 
 # Nebo z npm (po publikování)
-pnpm add @ai-toolkit/core
+pnpm add @ai-toolkit/core @ai-toolkit/tools @ai-toolkit/openai-runtime
 ```
 
-Viz [INSTALLATION.md](INSTALLATION.md) pro kompletní instrukce.
+Viz [INSTALLATION.md](INSTALLATION.md) pro kompletní instrukce a příklady použití.
 
 ## Quick Start (Development)
 
@@ -168,15 +170,25 @@ Viz [SETUP_GITHUB.md](SETUP_GITHUB.md) a [DEPLOYMENT.md](DEPLOYMENT.md) pro deta
 
 ## Dokumentace
 
-- [Quick Start Guide](QUICKSTART.md)
-- [Architecture](ARCHITECTURE.md)
+### Pro uživatele
+- [Quick Start Guide](QUICKSTART.md) - Rychlý start pro lokální vývoj
+- [Installation Guide](INSTALLATION.md) - Instalace jako závislost + použití
+- [AI Tools Reference](AI_TOOLS_REFERENCE.md) - Kompletní seznam všech tools
+- [API Key Management](docs/API_KEY_MANAGEMENT.md) - Per-tenant API keys
+
+### Pro vývojáře
+- [Architecture](ARCHITECTURE.md) - Architektura platformy
+- [Contributing Guide](CONTRIBUTING.md) - Jak přispět
+- [Deployment Guide](DEPLOYMENT.md) - Deployment instrukce
+- [Publishing Guide](docs/PUBLISHING.md) - Publikování na GitHub/npm
+
+### Reference
 - [AI Toolkit vs OpenAI Agents SDK](COMPARISON.md) - **Přečtěte si, jak se lišíme!**
-- [Deployment Guide](DEPLOYMENT.md)
-- [Contributing Guide](CONTRIBUTING.md)
 - [Tool Registry Guide](packages/toolkit-core/README.md)
 - [Workflow Templates](packages/workflow-kit/README.md)
 - [OpenAI Runtime](packages/openai-runtime/README.md)
 - [API Reference](apps/api/README.md)
+- [Architecture Decision Records](ADR/) - ADR dokumenty
 
 ## Vztah k OpenAI Agents SDK
 

@@ -1,12 +1,14 @@
 # Publishing Guide - GitHub & npm
 
+Kompletní průvodce pro publikování AI Toolkit na GitHub a npm.
+
 ## Přehled
 
-Tento guide popisuje, jak publikovat AI Toolkit na GitHub a npm pro použití v jiných projektech.
+Tento guide popisuje, jak publikovat AI Toolkit na GitHub a npm pro použití v jiných projektech jako závislost.
 
 ## Před publikováním
 
-### 1. Spusť pre-publish check
+### 1. Pre-publish kontrola
 
 ```bash
 pnpm pre-publish
@@ -44,11 +46,15 @@ git push origin main
 
 ## Publikování na GitHub
 
+> **Poznámka:** Pokud už máš repository nastavený, přeskoč na "Krok 3: Push na GitHub"
+
 ### Krok 1: Vytvoř GitHub Repository
 
 1. Jdi na https://github.com/new
 2. Vytvoř nový repository: `OpenAIplatform_Tools`
 3. Zkopíruj URL (např. `https://github.com/lintercom/OpenAIplatform_Tools.git`)
+
+Viz také [SETUP_GITHUB.md](../SETUP_GITHUB.md) pro detailní instrukce.
 
 ### Krok 2: Nastav Git Remote
 
@@ -219,6 +225,17 @@ GitHub Actions automaticky:
 - Zkontroluj, zda jsi přihlášen: `npm whoami`
 - Zkontroluj, zda máš správná oprávnění
 - Zkontroluj, zda verze není již publikovaná
+
+## Checklist před publikováním
+
+- [ ] Pre-publish check projde (`pnpm pre-publish`)
+- [ ] Všechny verze aktualizované
+- [ ] Všechny změny commitnuté
+- [ ] Git remote správně nastaven
+- [ ] README.md aktualizován
+- [ ] Dokumentace kompletní
+- [ ] Testy projdou
+- [ ] Build projde
 
 ## Next Steps
 

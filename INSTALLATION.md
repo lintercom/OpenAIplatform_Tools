@@ -1,8 +1,10 @@
-# Instalace AI Toolkit pro vývoj konkrétních systémů
+# Instalace a použití AI Toolkit
+
+Kompletní průvodce pro instalaci a použití AI Toolkit v jiných projektech.
 
 ## Přehled
 
-AI Toolkit může být použit jako závislost v jiných projektech pro vývoj konkrétních systémů s AI tools a workflows.
+AI Toolkit může být použit jako závislost v jiných projektech pro vývoj konkrétních systémů s AI tools a workflows. Každý klient může mít svůj vlastní API klíč (per-tenant) a vytvářet vlastní tools a workflows.
 
 ## Instalace
 
@@ -109,6 +111,8 @@ npx prisma migrate dev
 ## Použití v kódu
 
 ### Základní Setup
+
+Následující příklady ukazují, jak použít AI Toolkit v tvém projektu.
 
 ```typescript
 import { PrismaClient } from '@prisma/client';
